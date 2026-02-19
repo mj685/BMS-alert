@@ -25,11 +25,26 @@ def save_state(state):
 
 def check_availability():
     headers = {
-        "accept": "application/json",
-        "user-agent": "Mozilla/5.0"
+        "accept": "application/json, text/plain, */*",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "x-app-code": "WEB",
+        "x-platform-code": "WEB",
+        "x-region-code": "BANG",
+        "x-region-slug": "bengaluru"
     }
 
-    response = requests.get(URL, headers=headers, timeout=10)
+    response = requests.get(URL, headers=headers, timeout=15)
+
+    print("Status Code:", response.status_code)
+
+    if response.status_code != 200:
+        print("Non-200 response received")
+        return False
+
+    if "application/json" not in response.headers.get("content-type", ""):
+        print("Did not receive JSON. Possibly blocked.")
+        return False
+
     data = response.json()
 
     event_cards = data.get("eventCards", {})
@@ -43,6 +58,7 @@ def check_availability():
                         return True
 
     return False
+
 
 def send_email():
     subject = "🚨 Tickets LIVE for ET00474264"
